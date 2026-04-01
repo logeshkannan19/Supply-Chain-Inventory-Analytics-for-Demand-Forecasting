@@ -1,14 +1,50 @@
+"""
+Generate Data Module
+
+This module generates a synthetic, highly realistic supply chain dataset encompassing
+various product categories, inventory mechanics, supplier delays, and seasonal demand. 
+"""
+
+import os
+import logging
+from datetime import datetime, timedelta
+from typing import Dict, List, Tuple
+
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
-import os
 
-def generate_supply_chain_data(num_records=5000):
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+def generate_supply_chain_data(num_records: int = 5000) -> None:
+    """
+    Generates synthetic supply chain tracking data and writes it to a CSV file.
+
+    Parameters
+    ----------
+    num_records : int
+        The number of sequential daily record transactions to mock.
+        Defaults to 5000.
+
+    Returns
+    -------
+    None
+        The resulting pandas DataFrame is directly saved to `data/raw/supply_chain_data.csv`.
+        
+    Raises
+    ------
+    IOError
+        If there is an issue saving the generated CSV file to the disk.
+    """
+    logger.info(f"Starting data generation for {num_records} records.")
     np.random.seed(42)
     
-    # Products and Categories
-    categories = ['Electronics', 'Clothing', 'Home & Kitchen', 'Sports', 'Beauty']
-    products = {
+    categories: List[str] = ['Electronics', 'Clothing', 'Home & Kitchen', 'Sports', 'Beauty']
+    products: Dict[str, List[str]] = {
         'Electronics': ['Laptop', 'Smartphone', 'Tablet', 'Headphones', 'Smartwatch'],
         'Clothing': ['T-Shirt', 'Jeans', 'Sneakers', 'Jacket', 'Sweater'],
         'Home & Kitchen': ['Blender', 'Microwave', 'Coffee Maker', 'Vacuum Cleaner', 'Air Purifier'],
@@ -16,53 +52,42 @@ def generate_supply_chain_data(num_records=5000):
         'Beauty': ['Moisturizer', 'Perfume', 'Lipstick', 'Shampoo', 'Sunscreen']
     }
     
-    # Flatten products into a list of (Category, Product Name, Product ID)
-    product_list = []
-    pid_counter = 1000
+    # Flatten products into a map of (Category, Product Name, Product ID)
+    product_list: List[Tuple[str, str, str]] = []
+    pid_counter: int = 1000
     for cat, prods in products.items():
         for prod in prods:
             product_list.append((cat, prod, f"PRD{pid_counter}"))
             pid_counter += 1
             
-    # Dates spanning 2 years
-    start_date = datetime(2022, 1, 1)
-    date_list = [start_date + timedelta(days=x) for x in range(730)]
+    # Dates spanning 2 years back
+    start_date: datetime = datetime(2022, 1, 1)
+    date_list: List[datetime] = [start_date + timedelta(days=x) for x in range(730)]
     
-    # Other dimensional attributes
-    suppliers = [f"SUP{100+i}" for i in range(10)]
-    regions = ['North America', 'Europe', 'Asia', 'South America', 'Oceania']
-    warehouses = ['WH-A', 'WH-B', 'WH-C', 'WH-D']
+    suppliers: List[str] = [f"SUP{100+i}" for i in range(10)]
+    regions: List[str] = ['North America', 'Europe', 'Asia', 'South America', 'Oceania']
+    warehouses: List[str] = ['WH-A', 'WH-B', 'WH-C', 'WH-D']
     
-    data = []
+    data: List[Dict] = []
     
-    # Generate sequential data simulating daily operations
-    # To make demand realistic, we apply some seasonality and trend based on category
-    for i in range(num_records):
+    for _ in range(num_records):
         date = np.random.choice(date_list)
         cat, prod, pid = product_list[np.random.randint(0, len(product_list))]
         
-        # Base demand and variations
-        base_demand = np.random.randint(10, 100)
+        base_demand: int = np.random.randint(10, 100)
+        month: int = pd.to_datetime(date).month
         
-        # Seasonality: Electronics higher in Q4, Clothing varies by month
-        month = pd.to_datetime(date).month
+        # Inject realistic seasonality
         if cat == 'Electronics' and month in [11, 12]:
             base_demand = int(base_demand * 1.5)
-        elif cat == 'Clothing' and month in [6, 7, 8]: # Summer
-            if prod in ['T-Shirt']:
-                base_demand = int(base_demand * 1.3)
+        elif cat == 'Clothing' and month in [6, 7, 8] and prod == 'T-Shirt':
+            base_demand = int(base_demand * 1.3)
         
-        demand = max(0, int(np.random.normal(base_demand, 15)))
+        demand: int = max(0, int(np.random.normal(base_demand, 15)))
+        inventory_level: int = np.random.randint(0, 500)
+        reorder_point: int = np.random.randint(50, 150)
+        lead_time: int = np.random.randint(3, 14) 
         
-        # Inventory mechanics
-        inventory_level = np.random.randint(0, 500)
-        reorder_point = np.random.randint(50, 150)
-        lead_time = np.random.randint(3, 14) # days
-        supplier_id = np.random.choice(suppliers)
-        region = np.random.choice(regions)
-        warehouse = np.random.choice(warehouses)
-        
-        # Stock Status based on inventory vs demand
         if inventory_level == 0:
             stock_status = "Out of Stock"
         elif inventory_level < reorder_point:
@@ -70,11 +95,7 @@ def generate_supply_chain_data(num_records=5000):
         else:
             stock_status = "In Stock"
             
-        # Order quantity (replenishment)
-        if stock_status in ["Out of Stock", "Low Stock"]:
-            order_quantity = np.random.randint(100, 300)
-        else:
-            order_quantity = 0
+        order_quantity: int = np.random.randint(100, 300) if stock_status in ["Out of Stock", "Low Stock"] else 0
             
         data.append({
             'Date': date,
@@ -85,24 +106,29 @@ def generate_supply_chain_data(num_records=5000):
             'Inventory Level': inventory_level,
             'Reorder Point': reorder_point,
             'Lead Time (days)': lead_time,
-            'Supplier ID': supplier_id,
-            'Region': region,
-            'Warehouse': warehouse,
+            'Supplier ID': np.random.choice(suppliers),
+            'Region': np.random.choice(regions),
+            'Warehouse': np.random.choice(warehouses),
             'Stock Status': stock_status,
             'Order Quantity': order_quantity
         })
         
     df = pd.DataFrame(data)
-    # Sort by date
     df = df.sort_values(by=['Date', 'Product ID']).reset_index(drop=True)
     
-    # Save to CSV
-    output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'raw')
+    # Dynamic secure absolute path mapping
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    output_dir = os.path.join(root_dir, 'data', 'raw')
     os.makedirs(output_dir, exist_ok=True)
     output_path = os.path.join(output_dir, 'supply_chain_data.csv')
-    df.to_csv(output_path, index=False)
-    print(f"Generated {num_records} records of supply chain data.")
-    print(f"Saved to {output_path}")
+    
+    try:
+        df.to_csv(output_path, index=False)
+        logger.info(f"Successfully generated and structured {num_records} records.")
+        logger.info(f"File saved to {output_path}")
+    except IOError as e:
+        logger.error(f"Failed to write CSV output: {str(e)}")
+        raise
 
 if __name__ == "__main__":
     generate_supply_chain_data(10000)
