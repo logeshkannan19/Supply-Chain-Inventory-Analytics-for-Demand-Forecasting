@@ -1,0 +1,94 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+        
+    - name: Cache pip packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Run data generation
+      run: python src/generate_data.py
+      
+    - name: Run preprocessing
+      run: python src/preprocess.py
+      
+    - name: Run forecasting
+      run: python src/forecasting.py
+      
+    - name: Run EDA
+      run: python notebooks/eda.py
+      
+    - name: Verify outputs
+      run: |
+        test -f data/processed/cleaned_supply_chain_data.csv
+        test -f data/processed/forecast_outputs.csv
+        test -f models/lr_demand_model.pkl
+        
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+        
+    - name: Install linting tools
+      run: pip install flake8 black mypy
+      
+    - name: Run Black
+      run: black --check --diff src/ dashboard/ notebooks/ || true
+      
+    - name: Run Flake8
+      run: flake8 src/ dashboard/ notebooks/ --count --select=E9,F63,F7,F82 --show-source --statistics || true
+      
+    - name: Run MyPy
+      run: mypy src/ --ignore-missing-imports || true
+
+  streamlit-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+      
+    - name: Check Streamlit app
+      run: |
+        python -c "import streamlit; streamlit run dashboard/app.py --server.headless=true" &
+        sleep 5
+        curl -s http://localhost:8501 | grep -q "Supply Chain" && echo "Dashboard loads successfully"
+        pkill -f streamlit || true

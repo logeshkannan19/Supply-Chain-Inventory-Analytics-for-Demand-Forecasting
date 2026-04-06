@@ -1,0 +1,157 @@
+# Supply Chain Analytics Configuration
+
+data:
+  # Data generation settings
+  generation:
+    num_records: 10000
+    start_date: "2022-01-01"
+    days_span: 730
+    random_seed: 42
+
+  # Product categories
+  categories:
+    - Electronics
+    - Clothing
+    - Home & Kitchen
+    - Sports
+    - Beauty
+
+  products:
+    Electronics:
+      - Laptop
+      - Smartphone
+      - Tablet
+      - Headphones
+      - Smartwatch
+    Clothing:
+      - T-Shirt
+      - Jeans
+      - Sneakers
+      - Jacket
+      - Sweater
+    "Home & Kitchen":
+      - Blender
+      - Microwave
+      - Coffee Maker
+      - Vacuum Cleaner
+      - Air Purifier
+    Sports:
+      - Yoga Mat
+      - Dumbbells
+      - Tennis Racket
+      - Basketball
+      - Treadmill
+    Beauty:
+      - Moisturizer
+      - Perfume
+      - Lipstick
+      - Shampoo
+      - Sunscreen
+
+  # Suppliers and regions
+  suppliers_count: 10
+  regions:
+    - North America
+    - Europe
+    - Asia
+    - South America
+    - Oceania
+  warehouses:
+    - WH-A
+    - WH-B
+    - WH-C
+    - WH-D
+
+  # Demand parameters
+  demand:
+    min_base: 10
+    max_base: 100
+    std_dev: 15
+
+  # Inventory parameters
+  inventory:
+    min_level: 0
+    max_level: 500
+    min_reorder_point: 50
+    max_reorder_point: 150
+
+  # Lead time parameters
+  lead_time:
+    min_days: 3
+    max_days: 14
+
+  # Order parameters
+  order:
+    min_quantity: 100
+    max_quantity: 300
+
+# Forecasting settings
+forecasting:
+  # Model type: linear_regression, moving_average, arima, prophet
+  model_type: linear_regression
+  
+  # Lag features
+  lags: [1, 2, 3]
+  
+  # Train-test split ratio
+  train_test_split: 0.9
+  
+  # Evaluation metrics
+  metrics:
+    - mae
+    - rmse
+    - mape
+
+# Dashboard settings
+dashboard:
+  title: "Supply Chain & Inventory Analytics"
+  page_icon: "📦"
+  layout: "wide"
+  
+  # KPIs to display
+  kpis:
+    - total_demand
+    - current_inventory
+    - stock_out_rate
+    - inventory_turnover
+  
+  # Charts to display
+  charts:
+    - demand_trend
+    - inventory_trend
+    - top_products
+    - category_distribution
+    - risk_alerts
+  
+  # Default filters
+  default_filters:
+    categories: all
+    regions: all
+    date_range: last_30_days
+
+# Database settings (for future use)
+database:
+  # Connection type: sqlite, postgresql, mysql
+  type: sqlite
+  path: "data/supply_chain.db"
+  
+  # For PostgreSQL/MySQL (commented out by default)
+  # host: localhost
+  # port: 5432
+  # database: supply_chain
+  # username: admin
+  # password: ""
+
+# Logging settings
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/app.log"
+
+# Report settings
+reports:
+  output_dir: "reports"
+  formats:
+    - png
+    - pdf
+  dpi: 300

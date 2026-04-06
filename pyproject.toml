@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "supply-chain-analytics"
+version = "1.0.0"
+description = "End-to-end supply chain analytics for demand forecasting and inventory optimization"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Logesh Kannan", email = "logeshkannan19@example.com"}
+]
+requires-python = ">=3.9"
+dependencies = [
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
+    "plotly>=5.18.0",
+    "streamlit>=1.28.0",
+    "scikit-learn>=1.3.0",
+    "statsmodels>=0.14.0",
+    "joblib>=1.3.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.5.0",
+    "pytest>=7.4.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "dashboard*", "notebooks*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py39', 'py310', 'py311']
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true

@@ -1,26 +1,142 @@
 # Contributing to Supply Chain Analytics
 
-First off, thank you for considering contributing to the Supply Chain Analytics repository! It's people like you that make building transparent data tools such a great endeavor.
+Thank you for your interest in contributing to this project!
 
-## 1. Where do I go from here?
-If you've noticed a bug or have a feature request, make sure to check our **Issues** tab to see if someone else in the community has already created a ticket. If not, go ahead and make one!
+## Code of Conduct
 
-## 2. Fork & create a branch
-If this is something you think you can fix, then fork the repository and create a branch with a descriptive name. 
+Please be respectful and professional in all interactions. We follow the [Contributor Covenant](https://www.contributor-covenant.org/) code of conduct.
 
-A good branch name would be (where issue #325 is the ticket you're working on):
-`git checkout -b 325-add-lstm-forecasting`
+## How to Contribute
 
-## 3. Implementation Guidelines
-- **Keep it modular**: If you are adding a new model, create a new script in `/src/models/` rather than appending huge classes into existing files.
-- **Documentation**: All new methods must include Python docstrings explicitly defining Arguments, Returns, and Exceptions.
-- **Type Checking**: We prefer Type Hints (`def function(a: int) -> str:`).
+### 1. Reporting Issues
 
-## 4. Make a Pull Request
-Once you are finished, verify your code runs properly end-to-end:
+- Check if the issue already exists in the issue tracker
+- Create a detailed issue with:
+  - Clear title and description
+  - Steps to reproduce (if applicable)
+  - Expected vs actual behavior
+  - Screenshots or error messages
+
+### 2. Feature Requests
+
+- Open an issue with the `enhancement` label
+- Describe the feature and its use case
+- Provide any mockups or examples if possible
+
+### 3. Pull Requests
+
+#### Process
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Make your changes following the style guide
+4. Add tests if applicable
+5. Commit with clear, descriptive messages
+6. Push to your fork and create a Pull Request
+
+#### Branch Naming
+
+- `feature/` - New features
+- `fix/` - Bug fixes
+- `refactor/` - Code refactoring
+- `docs/` - Documentation updates
+
+#### Commit Messages
+
+Use clear, descriptive commit messages:
+- `feat: add Prophet forecasting model`
+- `fix: resolve stock risk calculation bug`
+- `docs: update API documentation`
+
+### 4. Development Setup
+
 ```bash
+# Clone and setup
+git clone https://github.com/logeshkannan19/Supply-Chain-Inventory-Analytics-for-Demand-Forecasting.git
+cd Supply-Chain-Inventory-Analytics-for-Demand-Forecasting
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the pipeline
 python src/generate_data.py
 python src/preprocess.py
 python src/forecasting.py
+
+# Launch dashboard
+streamlit run dashboard/app.py
 ```
-If everything functions successfully with zero crashes, push your commits and create a Pull Request on GitHub. 
+
+### 5. Coding Standards
+
+- **Python**: Follow PEP 8
+- **Type Hints**: Use type annotations for function parameters and return types
+- **Docstrings**: Use Google-style docstrings for all public functions
+- **Testing**: Add unit tests for new features
+
+#### Example Docstring
+
+```python
+def calculate_turnover_ratio(demand: int, inventory: int) -> float:
+    """Calculate inventory turnover ratio.
+
+    Args:
+        demand: Total units sold
+        inventory: Current inventory level
+
+    Returns:
+        Turnover ratio as a float
+
+    Raises:
+        ValueError: If inventory is zero or negative
+    """
+    if inventory <= 0:
+        raise ValueError("Inventory must be positive")
+    return demand / inventory
+```
+
+### 6. Project Structure
+
+```
+SupplyChainAnalytics/
+├── src/              # Core modules
+├── dashboard/        # Streamlit UI
+├── notebooks/        # EDA scripts
+├── models/           # Trained models
+├── data/             # Data files
+├── reports/          # Generated reports
+└── sql/              # SQL queries
+```
+
+### 7. Testing
+
+Run tests before submitting a PR:
+
+```bash
+# Run all scripts to ensure they work
+python src/generate_data.py
+python src/preprocess.py
+python src/forecasting.py
+
+# Run linting
+flake8 src/
+black --check src/
+```
+
+### 8. Review Process
+
+- All PRs require at least one review
+- Address feedback promptly
+- Ensure CI passes before merging
+
+## Questions?
+
+If you have questions, feel free to open a discussion or reach out to the maintainers.
+
+## Recognition
+
+Contributors will be recognized in the README and project's contributors page.
